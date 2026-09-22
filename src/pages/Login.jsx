@@ -25,9 +25,9 @@ function Login() {
         <section className="px-1 py-4 sm:px-5 lg:py-10">
           <Link className="inline-flex items-center gap-2.5 text-lg font-extrabold tracking-tight text-emerald-900" to="/login">
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-700 text-xl text-white shadow-sm">C</span>
-            ChangeMakers
+            MyCoral
           </Link>
-          <h1 className="mt-8 max-w-xl text-4xl font-bold tracking-tight text-emerald-950 sm:text-5xl">Welcome to ChangeMakers</h1>
+          <h1 className="mt-8 max-w-xl text-4xl font-bold tracking-tight text-emerald-950 sm:text-5xl">Welcome to MyCoral</h1>
           <p className="mt-4 max-w-lg text-base leading-7 text-slate-600 sm:text-lg">A Society Issue Management Platform that helps residents, staff, and administrators keep the community running smoothly.</p>
         </section>
 
@@ -46,7 +46,7 @@ function Login() {
             <button className="mt-1 min-h-12 rounded-lg bg-emerald-700 px-4 font-bold text-white transition hover:bg-emerald-800 focus:outline-none focus:ring-3 focus:ring-emerald-200" type="submit">Login</button>
           </form>
           {message && <p className={`mt-5 rounded-lg border px-3 py-2.5 text-sm leading-5 ${isError ? 'border-red-200 bg-red-50 text-red-700' : 'border-emerald-200 bg-emerald-50 text-emerald-800'}`} role="status">{message}</p>}
-          <p className="mt-6 text-center text-sm text-slate-500">New to ChangeMakers? <Link className="font-bold text-emerald-700 hover:text-emerald-800 hover:underline" to="/register">Create an account</Link></p>
+          <p className="mt-6 text-center text-sm text-slate-500">New to MyCoral? <Link className="font-bold text-emerald-700 hover:text-emerald-800 hover:underline" to="/register">Create an account</Link></p>
           <aside className="mt-7 rounded-xl border border-emerald-100 bg-emerald-50/70 p-4">
             <h3 className="text-sm font-bold text-emerald-950">Demo Login</h3>
             <ul className="mt-2 grid gap-1.5 text-sm text-emerald-800"><li><strong className="inline-block w-20">Resident:</strong> resident@test.com</li><li><strong className="inline-block w-20">Staff:</strong> staff@test.com</li><li><strong className="inline-block w-20">Admin:</strong> admin@test.com</li></ul>

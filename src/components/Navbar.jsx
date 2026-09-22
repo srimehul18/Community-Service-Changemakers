@@ -20,7 +20,7 @@ function Navbar({ userName = 'Community Member', role = 'resident', onMenuClick,
         <div className="flex items-center gap-2.5">
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-700 text-lg font-bold text-white shadow-sm">C</span>
           <div>
-            <p className="text-base font-bold tracking-tight text-emerald-900">ChangeMakers</p>
+            <p className="text-base font-bold tracking-tight text-emerald-900">MyCoral</p>
             <p className="hidden text-xs text-slate-500 sm:block">Society Issue Management</p>
           </div>
         </div>

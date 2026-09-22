@@ -35,7 +35,7 @@ function Register() {
         <section className="px-1 py-4 sm:px-5 lg:py-10">
           <Link className="inline-flex items-center gap-2.5 text-lg font-extrabold tracking-tight text-emerald-900" to="/login">
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-700 text-xl text-white shadow-sm">C</span>
-            ChangeMakers
+            MyCoral
           </Link>
           <h1 className="mt-8 max-w-xl text-4xl font-bold tracking-tight text-emerald-950 sm:text-5xl">Join your community in making change.</h1>
           <p className="mt-4 max-w-lg text-base leading-7 text-slate-600 sm:text-lg">Create an account to report issues, stay informed, and help make your society a better place to live.</p>
@@ -43,7 +43,7 @@ function Register() {
 
         <section className="rounded-2xl border border-emerald-100 bg-white p-6 shadow-xl shadow-emerald-950/10 sm:p-8" aria-labelledby="register-title">
           <h2 id="register-title" className="text-2xl font-bold tracking-tight text-slate-800">Create account</h2>
-          <p className="mt-2 text-sm leading-6 text-slate-500">Get started with ChangeMakers.</p>
+          <p className="mt-2 text-sm leading-6 text-slate-500">Get started with MyCoral.</p>
           <form className="mt-7 grid gap-4" onSubmit={handleSubmit}>
             <div className="grid gap-2"><label className="text-sm font-semibold text-slate-700" htmlFor="full-name">Full Name</label><input className={inputClassName} id="full-name" name="fullName" type="text" placeholder="Your full name" required /></div>
             <div className="grid gap-2"><label className="text-sm font-semibold text-slate-700" htmlFor="register-email">Email</label><input className={inputClassName} id="register-email" name="email" type="email" placeholder="you@example.com" required /></div>
