@@ -1,66 +1,126 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import AppLayout from '../../components/AppLayout'
 import SelectMenu from '../../components/SelectMenu'
-import { getUsers, saveUsers } from '../../data/demoStore'
-import { useDemoData } from '../../context/useDemoData'
+import { apiDelete, apiGet, apiPatch, apiPost } from '../../api/api'
 
 function ManageUsers() {
-  const users = useDemoData('users')
+  const [users, setUsers] = useState([])
 
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('123456')
   const [role, setRole] = useState('resident')
+
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
 
   const roleOptions = [
     { value: 'resident', label: 'Resident' },
-    { value: 'staff', label: 'Staff' },
+    { value: 'staff', label: 'Staff' }
   ]
 
   const userRoleOptions = [
     { value: 'resident', label: 'Resident' },
     { value: 'staff', label: 'Staff' },
-    { value: 'admin', label: 'Admin' },
+    { value: 'admin', label: 'Admin' }
   ]
 
-  function add(e) {
-    e.preventDefault()
+  const loadUsers = async () => {
+    try {
+      setLoading(true)
+      setError('')
 
-    if (!name.trim() || !email.trim()) return
-
-    saveUsers([
-      ...getUsers(),
-      {
-        id: `u-${Date.now()}`,
-        name,
-        email,
-        password: '123456',
-        role,
-      },
-    ])
-
-    setName('')
-    setEmail('')
-    setRole('resident')
+      const data = await apiGet('/users')
+      setUsers(data)
+    } catch (err) {
+      setError(err.message || 'Failed to load users')
+    } finally {
+      setLoading(false)
+    }
   }
 
-  function update(id, role) {
-    saveUsers(
-      getUsers().map(x =>
-        x.id === id
-          ? {
-              ...x,
-              role,
-            }
-          : x
+  useEffect(() => {
+    loadUsers()
+  }, [])
+
+  async function add(event) {
+    event.preventDefault()
+
+    if (!name.trim() || !email.trim() || !password) {
+      setError(
+        'Name, email and password are required.'
       )
+      return
+    }
+
+    try {
+      setSaving(true)
+      setError('')
+
+      const newUser = await apiPost('/users', {
+        name: name.trim(),
+        email: email.trim(),
+        password,
+        role
+      })
+
+      setUsers((current) => [
+        ...current,
+        newUser
+      ])
+
+      setName('')
+      setEmail('')
+      setPassword('123456')
+      setRole('resident')
+    } catch (err) {
+      setError(err.message || 'Failed to create user')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  async function update(id, newRole) {
+    try {
+      setError('')
+
+      const updatedUser = await apiPatch(
+        `/users/${id}`,
+        { role: newRole }
+      )
+
+      setUsers((current) =>
+        current.map((user) =>
+          user._id === id
+            ? updatedUser
+            : user
+        )
+      )
+    } catch (err) {
+      setError(err.message || 'Failed to update user')
+    }
+  }
+
+  async function remove(id) {
+    const confirmed = window.confirm(
+      'Delete this user?'
     )
-  }
 
-  function remove(id) {
-    if (window.confirm('Delete this demo user?')) {
-      saveUsers(
-        getUsers().filter(x => x.id !== id)
+    if (!confirmed) return
+
+    try {
+      setError('')
+
+      await apiDelete(`/users/${id}`)
+
+      setUsers((current) =>
+        current.filter(
+          (user) => user._id !== id
+        )
       )
+    } catch (err) {
+      setError(err.message || 'Failed to delete user')
     }
   }
 
@@ -71,24 +131,50 @@ function ManageUsers() {
           Manage Users
         </h1>
 
-        {/* Add User */}
+        <p className="mt-2 text-slate-600">
+          Create and manage society users and roles.
+        </p>
+
+        {error && (
+          <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+            {error}
+          </div>
+        )}
+
         <form
           onSubmit={add}
-          className="mt-6 grid gap-3 rounded-xl border bg-white p-4 sm:grid-cols-4"
+          className="mt-6 grid gap-3 rounded-xl border bg-white p-4 sm:grid-cols-5"
         >
           <input
             value={name}
-            onChange={e => setName(e.target.value)}
+            onChange={(event) =>
+              setName(event.target.value)
+            }
             className="rounded-lg border border-slate-200 bg-slate-50 p-2 text-sm outline-none transition focus:border-emerald-400 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
             placeholder="Full name"
+            disabled={saving}
           />
 
           <input
             value={email}
-            onChange={e => setEmail(e.target.value)}
+            onChange={(event) =>
+              setEmail(event.target.value)
+            }
             className="rounded-lg border border-slate-200 bg-slate-50 p-2 text-sm outline-none transition focus:border-emerald-400 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
             placeholder="Email"
             type="email"
+            disabled={saving}
+          />
+
+          <input
+            value={password}
+            onChange={(event) =>
+              setPassword(event.target.value)
+            }
+            className="rounded-lg border border-slate-200 bg-slate-50 p-2 text-sm outline-none transition focus:border-emerald-400 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
+            placeholder="Password"
+            type="password"
+            disabled={saving}
           />
 
           <SelectMenu
@@ -100,62 +186,73 @@ function ManageUsers() {
 
           <button
             type="submit"
-            className="rounded-lg bg-emerald-700 p-2 text-sm font-bold text-white transition hover:bg-emerald-800 active:scale-[0.98]"
+            disabled={saving}
+            className="rounded-lg bg-emerald-700 p-2 text-sm font-bold text-white transition hover:bg-emerald-800 disabled:opacity-60"
           >
-            Add Demo User
+            {saving ? 'Adding...' : 'Add User'}
           </button>
         </form>
 
-        {/* Users Table */}
         <div className="mt-5 overflow-x-auto rounded-xl border bg-white">
-          <table className="w-full min-w-[600px] text-left text-sm">
-            <thead className="bg-slate-50">
-              <tr>
-                <th className="p-3">Name</th>
-                <th className="p-3">Email</th>
-                <th className="p-3">Role</th>
-                <th className="p-3">Action</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {users.map(x => (
-                <tr
-                  className="border-t"
-                  key={x.id}
-                >
-                  <td className="p-3 font-semibold">
-                    {x.name}
-                  </td>
-
-                  <td className="p-3 text-slate-600">
-                    {x.email}
-                  </td>
-
-                  <td className="p-3">
-                    <SelectMenu
-                      value={x.role}
-                      onChange={value =>
-                        update(x.id, value)
-                      }
-                      options={userRoleOptions}
-                      className="w-32"
-                    />
-                  </td>
-
-                  <td className="p-3">
-                    <button
-                      type="button"
-                      onClick={() => remove(x.id)}
-                      className="text-sm font-bold text-red-700 transition hover:text-red-800 hover:underline"
-                    >
-                      Delete
-                    </button>
-                  </td>
+          {loading ? (
+            <p className="p-10 text-center text-slate-500">
+              Loading users...
+            </p>
+          ) : (
+            <table className="w-full min-w-[600px] text-left text-sm">
+              <thead className="bg-slate-50">
+                <tr>
+                  <th className="p-3">Name</th>
+                  <th className="p-3">Email</th>
+                  <th className="p-3">Role</th>
+                  <th className="p-3">Action</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+
+              <tbody>
+                {users.map((user) => (
+                  <tr
+                    className="border-t"
+                    key={user._id}
+                  >
+                    <td className="p-3 font-semibold">
+                      {user.name}
+                    </td>
+
+                    <td className="p-3 text-slate-600">
+                      {user.email}
+                    </td>
+
+                    <td className="p-3">
+                      <SelectMenu
+                        value={user.role}
+                        onChange={(value) =>
+                          update(
+                            user._id,
+                            value
+                          )
+                        }
+                        options={userRoleOptions}
+                        className="w-32"
+                      />
+                    </td>
+
+                    <td className="p-3">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          remove(user._id)
+                        }
+                        className="text-sm font-bold text-red-700 transition hover:text-red-800 hover:underline"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
     </AppLayout>

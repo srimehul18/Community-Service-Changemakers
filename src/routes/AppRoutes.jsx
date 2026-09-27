@@ -14,6 +14,7 @@ import ManageUsers from '../pages/admin/ManageUsers'
 import ManageCategories from '../pages/admin/ManageCategories'
 import Analytics from '../pages/admin/Analytics'
 import ProtectedRoute from './ProtectedRoute'
+import AdminIssueDetails from '../pages/admin/IssueDetails'
 
 function AppRoutes() {
   return (
@@ -36,6 +37,23 @@ function AppRoutes() {
       <Route path="/admin/users" element={<ProtectedRoute role="admin"><ManageUsers /></ProtectedRoute>} />
       <Route path="/admin/categories" element={<ProtectedRoute role="admin"><ManageCategories /></ProtectedRoute>} />
       <Route path="/admin/analytics" element={<ProtectedRoute role="admin"><Analytics /></ProtectedRoute>} />
+      <Route
+        path="/admin/issues"
+        element={
+          <ProtectedRoute role="admin">
+            <AllIssues />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/issues/:id"
+        element={
+          <ProtectedRoute role="admin">
+            <AdminIssueDetails />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   )
 }

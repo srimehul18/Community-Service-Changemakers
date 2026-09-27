@@ -9,14 +9,23 @@ function Login() {
   const [isError, setIsError] = useState(false)
   const { login } = useAuth()
   const navigate = useNavigate()
-
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault()
+
     const form = new FormData(event.currentTarget)
-    const result = login(form.get('email'), form.get('password'))
+
+    const result = await login(
+      form.get('email'),
+      form.get('password')
+    )
+
     setIsError(!result.success)
-    if (result.success) navigate(`/${result.user.role}/dashboard`)
-    else setMessage(result.message)
+
+    if (result.success) {
+      navigate(`/${result.user.role}/dashboard`)
+    } else {
+      setMessage(result.message)
+    }
   }
 
   return (
@@ -48,8 +57,26 @@ function Login() {
           {message && <p className={`mt-5 rounded-lg border px-3 py-2.5 text-sm leading-5 ${isError ? 'border-red-200 bg-red-50 text-red-700' : 'border-emerald-200 bg-emerald-50 text-emerald-800'}`} role="status">{message}</p>}
           <p className="mt-6 text-center text-sm text-slate-500">New to MyCoral? <Link className="font-bold text-emerald-700 hover:text-emerald-800 hover:underline" to="/register">Create an account</Link></p>
           <aside className="mt-7 rounded-xl border border-emerald-100 bg-emerald-50/70 p-4">
-            <h3 className="text-sm font-bold text-emerald-950">Demo Login</h3>
-            <ul className="mt-2 grid gap-1.5 text-sm text-emerald-800"><li><strong className="inline-block w-20">Resident:</strong> resident@test.com</li><li><strong className="inline-block w-20">Staff:</strong> staff@test.com</li><li><strong className="inline-block w-20">Admin:</strong> admin@test.com</li></ul>
+            <h3 className="text-sm font-bold text-emerald-950">
+              Test Login
+            </h3>
+
+            <ul className="mt-2 grid gap-1.5 text-sm text-emerald-800">
+              <li>
+                <strong className="inline-block w-20">Resident:</strong>
+                resident@mvlcoral.com
+              </li>
+
+              <li>
+                <strong className="inline-block w-20">Admin:</strong>
+                admin@mvlcoral.com
+              </li>
+
+              <li>
+                <strong className="inline-block w-20">Password:</strong>
+                123456
+              </li>
+            </ul>
           </aside>
         </section>
       </div>
