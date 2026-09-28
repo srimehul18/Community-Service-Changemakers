@@ -22,8 +22,31 @@ const paths = {
   assign: <><circle cx="9" cy="7" r="3.5" /><path d="M2 21a7 7 0 0 1 14 0M17 11h5M19.5 8.5v5" /></>,
   refresh: <><path d="M20 11a8 8 0 1 0 2 5" /><path d="M20 4v7h-7" /></>,
   alert: <><path d="M10.3 3.5 2.8 18a2 2 0 0 0 1.8 3h14.8a2 2 0 0 0 1.8-3L13.7 3.5a2 2 0 0 0-3.4 0Z" /><path d="M12 9v4M12 17h.01" /></>,
-    chevronDown: <path d="m6 9 6 6 6-6" />,
-     check: <path d="m5 12 4 4L19 6" />,
+  building: (
+    <>
+      <path d="M4 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16" />
+      <path d="M16 9h2a2 2 0 0 1 2 2v10" />
+      <path d="M2 21h20" />
+      <path d="M8 7h2M8 11h2M8 15h2M12 7h2M12 11h2M12 15h2" />
+    </>
+  ),
+
+  layers: (
+    <>
+      <path d="m12 3 9 5-9 5-9-5 9-5Z" />
+      <path d="m3 12 9 5 9-5" />
+      <path d="m3 16 9 5 9-5" />
+    </>
+  ),
+
+  mapPin: (
+    <>
+      <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
+      <circle cx="12" cy="10" r="2.5" />
+    </>
+  ),
+  chevronDown: <path d="m6 9 6 6 6-6" />,
+  check: <path d="m5 12 4 4L19 6" />,
 }
 
 function Icon({ name, className = 'h-5 w-5', strokeWidth = 1.8 }) {

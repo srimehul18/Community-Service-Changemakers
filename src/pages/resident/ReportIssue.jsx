@@ -11,23 +11,50 @@ function ReportIssue() {
 
   const [categories, setCategories] = useState([])
   const [loadingCategories, setLoadingCategories] = useState(true)
+  const [locationType, setLocationType] = useState('flat')
+
+  const [societyConfig, setSocietyConfig] = useState({
+    towers: [],
+    floors: [],
+    commonAreas: []
+  })
+
+  const [loadingSocietyConfig, setLoadingSocietyConfig] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
 
   useEffect(() => {
-    const loadCategories = async () => {
+    const loadData = async () => {
       try {
         setLoadingCategories(true)
-        const data = await apiGet('/categories')
-        setCategories(data)
+        setLoadingSocietyConfig(true)
+        setError('')
+
+        const [categoriesData, societyConfigData] =
+          await Promise.all([
+            apiGet('/categories'),
+            apiGet('/society-config')
+          ])
+
+        setCategories(categoriesData)
+
+        setSocietyConfig({
+          towers: societyConfigData.towers || [],
+          floors: societyConfigData.floors || [],
+          commonAreas: societyConfigData.commonAreas || []
+        })
       } catch (err) {
-        setError(err.message || 'Failed to load categories')
+        setError(
+          err.message ||
+          'Failed to load reporting options'
+        )
       } finally {
         setLoadingCategories(false)
+        setLoadingSocietyConfig(false)
       }
     }
 
-    loadCategories()
+    loadData()
   }, [])
 
   async function submit(event) {
@@ -46,10 +73,22 @@ function ReportIssue() {
     }
 
     const location = {
-      tower: form.get('block')?.trim() || '',
-      floor: form.get('floor')?.trim() || '',
-      flat: form.get('flat')?.trim() || '',
-      commonArea: form.get('commonArea')?.trim() || ''
+      tower:
+        locationType === 'flat'
+          ? form.get('block')?.trim() || ''
+          : '',
+      floor:
+        locationType === 'flat'
+          ? form.get('floor')?.trim() || ''
+          : '',
+      flat:
+        locationType === 'flat'
+          ? form.get('flat')?.trim() || ''
+          : '',
+      commonArea:
+        locationType === 'commonArea'
+          ? form.get('commonArea')?.trim() || ''
+          : ''
     }
 
     const images = form.getAll('images')
@@ -159,40 +198,137 @@ function ReportIssue() {
             </Field>
           </div>
 
-          <div className="grid gap-5 sm:grid-cols-3">
-            <Field label="Block">
-              <input
-                name="block"
-                className={input}
-                disabled={submitting}
-              />
+          <div className="grid gap-5">
+            <Field label="Where is the issue?">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 p-3 text-sm font-medium text-slate-700 transition hover:border-emerald-300">
+                  <input
+                    type="radio"
+                    name="locationType"
+                    value="flat"
+                    checked={locationType === 'flat'}
+                    onChange={() => setLocationType('flat')}
+                    disabled={submitting}
+                    className="accent-emerald-600"
+                  />
+                  Inside a flat
+                </label>
+
+                <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 p-3 text-sm font-medium text-slate-700 transition hover:border-emerald-300">
+                  <input
+                    type="radio"
+                    name="locationType"
+                    value="commonArea"
+                    checked={locationType === 'commonArea'}
+                    onChange={() =>
+                      setLocationType('commonArea')
+                    }
+                    disabled={submitting}
+                    className="accent-emerald-600"
+                  />
+                  Common area
+                </label>
+              </div>
             </Field>
 
-            <Field label="Floor">
-              <input
-                name="floor"
-                className={input}
-                disabled={submitting}
-              />
-            </Field>
+            {locationType === 'flat' ? (
+              <div className="grid gap-5 sm:grid-cols-3">
+                <Field label="Tower">
+                  <select
+                    name="block"
+                    className={input}
+                    disabled={
+                      loadingSocietyConfig || submitting
+                    }
+                    required
+                  >
+                    <option value="">
+                      {loadingSocietyConfig
+                        ? 'Loading towers...'
+                        : 'Select tower'}
+                    </option>
 
-            <Field label="Flat Number">
-              <input
-                name="flat"
-                className={input}
-                disabled={submitting}
-              />
-            </Field>
+                    {societyConfig.towers
+                      .filter((tower) => tower.isActive)
+                      .map((tower) => (
+                        <option
+                          key={tower._id}
+                          value={tower.name}
+                        >
+                          {tower.name}
+                        </option>
+                      ))}
+                  </select>
+                </Field>
+
+                <Field label="Floor">
+                  <select
+                    name="floor"
+                    className={input}
+                    disabled={
+                      loadingSocietyConfig || submitting
+                    }
+                    required
+                  >
+                    <option value="">
+                      {loadingSocietyConfig
+                        ? 'Loading floors...'
+                        : 'Select floor'}
+                    </option>
+
+                    {societyConfig.floors
+                      .filter((floor) => floor.isActive)
+                      .map((floor) => (
+                        <option
+                          key={floor._id}
+                          value={floor.name}
+                        >
+                          {floor.name}
+                        </option>
+                      ))}
+                  </select>
+                </Field>
+
+                <Field label="Flat Number">
+                  <input
+                    name="flat"
+                    className={input}
+                    disabled={submitting}
+                    placeholder="e.g. B217"
+                    required
+                  />
+                </Field>
+              </div>
+            ) : (
+              <Field label="Common Area">
+                <select
+                  name="commonArea"
+                  className={input}
+                  disabled={
+                    loadingSocietyConfig || submitting
+                  }
+                  required
+                >
+                  <option value="">
+                    {loadingSocietyConfig
+                      ? 'Loading common areas...'
+                      : 'Select common area'}
+                  </option>
+
+                  {societyConfig.commonAreas
+                    .filter((area) => area.isActive)
+                    .map((area) => (
+                      <option
+                        key={area._id}
+                        value={area.name}
+                      >
+                        {area.name}
+                      </option>
+                    ))}
+                </select>
+              </Field>
+            )}
           </div>
-
-          <Field label="Common Area">
-            <input
-              name="commonArea"
-              className={input}
-              placeholder="e.g. Garden, lobby, parking"
-              disabled={submitting}
-            />
-          </Field>
 
           <Field label="Photo (optional)">
             <input
@@ -207,10 +343,16 @@ function ReportIssue() {
 
           <button
             type="submit"
-            disabled={submitting || loadingCategories}
+            disabled={
+              submitting ||
+              loadingCategories ||
+              loadingSocietyConfig
+            }
             className="rounded-lg bg-emerald-700 px-4 py-3 font-bold text-white hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {submitting ? 'Submitting Issue...' : 'Submit Issue'}
+            {submitting
+              ? 'Submitting Issue...'
+              : 'Submit Issue'}
           </button>
         </form>
       </div>

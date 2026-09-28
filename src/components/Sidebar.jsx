@@ -14,12 +14,20 @@ const navigationByRole = {
     { label: 'Profile', to: '/staff/profile', icon: 'user' },
   ],
   admin: [
-    { label: 'Dashboard', to: '/admin/dashboard', icon: 'dashboard' },
-    { label: 'All Issues', to: '/admin/issues', icon: 'clipboard' },
-    { label: 'Users', to: '/admin/users', icon: 'users' },
-    { label: 'Categories', to: '/admin/categories', icon: 'tag' },
-    { label: 'Analytics', to: '/admin/analytics', icon: 'chart' },
-  ],
+
+  { label: 'Dashboard', to: '/admin/dashboard', icon: 'dashboard' },
+
+  { label: 'All Issues', to: '/admin/issues', icon: 'clipboard' },
+
+  { label: 'Users', to: '/admin/users', icon: 'users' },
+
+  { label: 'Categories', to: '/admin/categories', icon: 'tag' },
+
+  { label: 'Society Configuration', to: '/admin/society-config', icon: 'building' },
+
+  { label: 'Analytics', to: '/admin/analytics', icon: 'chart' },
+
+],
 }
 
 function Sidebar({ role = 'resident', isOpen = false, onClose }) {

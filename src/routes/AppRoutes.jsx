@@ -21,6 +21,7 @@ import AdminIssueDetails from '../pages/admin/IssueDetails'
 
 import ProtectedRoute from './ProtectedRoute'
 import UserProfile from '../pages/admin/UserProfile'
+import SocietyConfig from '../pages/admin/SocietyConfig'
 
 function AppRoutes() {
   return (
@@ -172,6 +173,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute role="admin">
             <UserProfile />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/society-config"
+        element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <SocietyConfig />
           </ProtectedRoute>
         }
       />
