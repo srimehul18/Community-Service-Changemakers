@@ -6,10 +6,12 @@ const navigationByRole = {
     { label: 'Dashboard', to: '/resident/dashboard', icon: 'dashboard' },
     { label: 'Report Issue', to: '/resident/report', icon: 'plus' },
     { label: 'My Issues', to: '/resident/issues', icon: 'list' },
+    { label: 'Profile', to: '/resident/profile', icon: 'user' },
   ],
   staff: [
     { label: 'Dashboard', to: '/staff/dashboard', icon: 'dashboard' },
     { label: 'Assigned Issues', to: '/staff/issues', icon: 'clipboard' },
+    { label: 'Profile', to: '/staff/profile', icon: 'user' },
   ],
   admin: [
     { label: 'Dashboard', to: '/admin/dashboard', icon: 'dashboard' },

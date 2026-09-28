@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import AppLayout from '../../components/AppLayout'
 import SelectMenu from '../../components/SelectMenu'
 import { apiDelete, apiGet, apiPatch, apiPost } from '../../api/api'
+import { Link } from 'react-router-dom'
 
 function ManageUsers() {
   const [users, setUsers] = useState([])
@@ -215,8 +216,13 @@ function ManageUsers() {
                     className="border-t"
                     key={user._id}
                   >
-                    <td className="p-3 font-semibold">
-                      {user.name}
+                    <td className="p-3">
+                      <Link
+                        to={`/admin/users/${user._id}`}
+                        className="font-semibold text-slate-900 hover:text-emerald-700 hover:underline"
+                      >
+                        {user.name}
+                      </Link>
                     </td>
 
                     <td className="p-3 text-slate-600">

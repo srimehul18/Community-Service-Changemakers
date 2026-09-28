@@ -1,20 +1,26 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import Login from '../pages/Login'
 import Register from '../pages/Register'
+import Profile from '../pages/Profile'
+
 import ResidentDashboard from '../pages/resident/ResidentDashboard'
 import ReportIssue from '../pages/resident/ReportIssue'
 import MyIssues from '../pages/resident/MyIssues'
 import ResidentIssueDetails from '../pages/resident/IssueDetails'
+
 import StaffDashboard from '../pages/staff/StaffDashboard'
 import AssignedIssues from '../pages/staff/AssignedIssues'
 import StaffIssueDetails from '../pages/staff/IssueDetails'
+
 import AdminDashboard from '../pages/admin/AdminDashboard'
 import AllIssues from '../pages/admin/AllIssues'
 import ManageUsers from '../pages/admin/ManageUsers'
 import ManageCategories from '../pages/admin/ManageCategories'
 import Analytics from '../pages/admin/Analytics'
-import ProtectedRoute from './ProtectedRoute'
 import AdminIssueDetails from '../pages/admin/IssueDetails'
+
+import ProtectedRoute from './ProtectedRoute'
+import UserProfile from '../pages/admin/UserProfile'
 
 function AppRoutes() {
   return (
@@ -23,20 +29,99 @@ function AppRoutes() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
 
-      <Route path="/resident/dashboard" element={<ProtectedRoute role="resident"><ResidentDashboard /></ProtectedRoute>} />
-      <Route path="/resident/report" element={<ProtectedRoute role="resident"><ReportIssue /></ProtectedRoute>} />
-      <Route path="/resident/issues" element={<ProtectedRoute role="resident"><MyIssues /></ProtectedRoute>} />
-      <Route path="/resident/issues/:id" element={<ProtectedRoute role="resident"><ResidentIssueDetails /></ProtectedRoute>} />
+      {/* Resident */}
+      <Route
+        path="/resident/dashboard"
+        element={
+          <ProtectedRoute role="resident">
+            <ResidentDashboard />
+          </ProtectedRoute>
+        }
+      />
 
-      <Route path="/staff/dashboard" element={<ProtectedRoute role="staff"><StaffDashboard /></ProtectedRoute>} />
-      <Route path="/staff/issues" element={<ProtectedRoute role="staff"><AssignedIssues /></ProtectedRoute>} />
-      <Route path="/staff/issues/:id" element={<ProtectedRoute role="staff"><StaffIssueDetails /></ProtectedRoute>} />
+      <Route
+        path="/resident/report"
+        element={
+          <ProtectedRoute role="resident">
+            <ReportIssue />
+          </ProtectedRoute>
+        }
+      />
 
-      <Route path="/admin/dashboard" element={<ProtectedRoute role="admin"><AdminDashboard /></ProtectedRoute>} />
-      <Route path="/admin/issues" element={<ProtectedRoute role="admin"><AllIssues /></ProtectedRoute>} />
-      <Route path="/admin/users" element={<ProtectedRoute role="admin"><ManageUsers /></ProtectedRoute>} />
-      <Route path="/admin/categories" element={<ProtectedRoute role="admin"><ManageCategories /></ProtectedRoute>} />
-      <Route path="/admin/analytics" element={<ProtectedRoute role="admin"><Analytics /></ProtectedRoute>} />
+      <Route
+        path="/resident/issues"
+        element={
+          <ProtectedRoute role="resident">
+            <MyIssues />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/resident/issues/:id"
+        element={
+          <ProtectedRoute role="resident">
+            <ResidentIssueDetails />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/resident/profile"
+        element={
+          <ProtectedRoute role="resident">
+            <Profile />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Staff */}
+      <Route
+        path="/staff/dashboard"
+        element={
+          <ProtectedRoute role="staff">
+            <StaffDashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/staff/issues"
+        element={
+          <ProtectedRoute role="staff">
+            <AssignedIssues />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/staff/issues/:id"
+        element={
+          <ProtectedRoute role="staff">
+            <StaffIssueDetails />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/staff/profile"
+        element={
+          <ProtectedRoute role="staff">
+            <Profile />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Admin */}
+      <Route
+        path="/admin/dashboard"
+        element={
+          <ProtectedRoute role="admin">
+            <AdminDashboard />
+          </ProtectedRoute>
+        }
+      />
+
       <Route
         path="/admin/issues"
         element={
@@ -51,6 +136,42 @@ function AppRoutes() {
         element={
           <ProtectedRoute role="admin">
             <AdminIssueDetails />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/users"
+        element={
+          <ProtectedRoute role="admin">
+            <ManageUsers />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/categories"
+        element={
+          <ProtectedRoute role="admin">
+            <ManageCategories />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/analytics"
+        element={
+          <ProtectedRoute role="admin">
+            <Analytics />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/users/:id"
+        element={
+          <ProtectedRoute role="admin">
+            <UserProfile />
           </ProtectedRoute>
         }
       />
