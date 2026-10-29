@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { apiPost } from '../api/api'
+import { isStrongPassword } from '../utils/validation'
 
 const inputClassName =
   'min-h-12 rounded-lg border border-emerald-100 bg-white px-3.5 text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-emerald-600 focus:ring-3 focus:ring-emerald-100'
@@ -13,50 +14,60 @@ function Register() {
   const [submitting, setSubmitting] = useState(false)
 
   async function handleSubmit(event) {
-  event.preventDefault()
+    event.preventDefault()
 
-  const formElement = event.currentTarget
-  const form = new FormData(formElement)
+    const formElement = event.currentTarget
+    const form = new FormData(formElement)
 
-  const fullName = form.get('fullName')?.trim()
-  const email = form.get('email')?.trim()
-  const password = form.get('password')
-  const confirmPassword = form.get('confirmPassword')
+    const fullName = form.get('fullName')?.trim()
+    const email = form.get('email')?.trim()
+    const password = form.get('password')
+    const confirmPassword = form.get('confirmPassword')
 
-  if (password !== confirmPassword) {
-    setIsError(true)
-    setMessage('Passwords do not match. Please try again.')
-    return
+    if (!isStrongPassword(password)) {
+      setIsError(true)
+      setMessage(
+        'Password must be at least 8 characters and include an uppercase letter, a lowercase letter, a number, and a special character. Spaces are not allowed.'
+      )
+      return
+    }
+
+    if (password !== confirmPassword) {
+      setIsError(true)
+      setMessage('Passwords do not match. Please try again.')
+      return
+    }
+
+    try {
+      setSubmitting(true)
+      setIsError(false)
+      setMessage('')
+
+      await apiPost('/auth/register', {
+        name: fullName,
+        email,
+        password
+      })
+
+      setIsError(false)
+      setMessage(
+        'Account created successfully. You can now sign in with your email and password.'
+      )
+
+      formElement.reset()
+
+      setTimeout(() => {
+        navigate('/login')
+      }, 1200)
+    } catch (error) {
+      setIsError(true)
+      setMessage(
+        error.message || 'Registration failed. Please try again.'
+      )
+    } finally {
+      setSubmitting(false)
+    }
   }
-
-  try {
-    setSubmitting(true)
-    setIsError(false)
-    setMessage('')
-
-    await apiPost('/auth/register', {
-      name: fullName,
-      email,
-      password
-    })
-
-    setIsError(false)
-    setMessage(
-      'Account created successfully. You can now sign in with your email and password.'
-    )
-
-    formElement.reset()
-
-    setTimeout(() => {
-      navigate('/login')
-    }, 1200)
-  } catch (error) {
-    setIsError(true)
-    setMessage(error.message || 'Registration failed. Please try again.')
-  } finally {
-    setSubmitting(false)
-  }
-}
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-linear-to-br from-emerald-50 via-white to-teal-50 px-4 py-8 sm:px-6">
@@ -115,6 +126,7 @@ function Register() {
                 name="fullName"
                 type="text"
                 placeholder="Your full name"
+                autoComplete="name"
                 required
               />
             </div>
@@ -133,6 +145,7 @@ function Register() {
                 name="email"
                 type="email"
                 placeholder="you@example.com"
+                autoComplete="email"
                 required
               />
             </div>
@@ -151,8 +164,15 @@ function Register() {
                 name="password"
                 type="password"
                 placeholder="Create a password"
+                autoComplete="new-password"
+                minLength={8}
                 required
               />
+
+              <p className="text-xs leading-5 text-slate-500">
+                At least 8 characters, including uppercase and lowercase
+                letters, a number, and a special character. No spaces.
+              </p>
             </div>
 
             <div className="grid gap-2">
@@ -169,6 +189,8 @@ function Register() {
                 name="confirmPassword"
                 type="password"
                 placeholder="Confirm your password"
+                autoComplete="new-password"
+                minLength={8}
                 required
               />
             </div>

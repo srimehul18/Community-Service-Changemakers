@@ -29,6 +29,16 @@ function ResidentDashboard() {
   ]
 
   const recentIssues = issues.slice(0, 3)
+  const currentHour = new Date().getHours()
+
+  const greeting =
+    currentHour >= 5 && currentHour < 12
+      ? 'Good morning'
+      : currentHour >= 12 && currentHour < 17
+        ? 'Good afternoon'
+        : currentHour >= 17 && currentHour < 21
+          ? 'Good evening'
+          : 'Good night'
 
   return (
     <AppLayout>
@@ -39,8 +49,8 @@ function ResidentDashboard() {
               Resident dashboard
             </p>
 
-            <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-900">
-              Good morning, {currentUser.name.split(' ')[0]}
+            <h1 className="text-4xl font-bold">
+              {greeting}, {currentUser?.name || 'Resident'}
             </h1>
 
             <p className="mt-2 text-slate-600">

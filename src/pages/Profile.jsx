@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import AppLayout from '../components/AppLayout'
 import { apiGet, apiPatch } from '../api/api'
+import { isOptionalIndianMobile } from '../utils/validation'
 
 const inputClassName =
   'min-h-11 w-full rounded-lg border border-emerald-100 bg-white px-3.5 text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-emerald-600 focus:ring-3 focus:ring-emerald-100'
@@ -52,6 +53,14 @@ function Profile() {
   const handleSave = async (event) => {
     event.preventDefault()
 
+    if (!isOptionalIndianMobile(formData.phone)) {
+      setIsError(true)
+      setMessage(
+        'Phone number must be exactly 10 digits and start with 6, 7, 8, or 9.'
+      )
+      return
+    }
+
     setSaving(true)
     setMessage('')
     setIsError(false)
@@ -82,7 +91,7 @@ function Profile() {
       setIsEditing(false)
       setMessage('Profile updated successfully')
     } catch (error) {
-      setMessage(error.message)
+      setMessage(error.message || 'Failed to update profile')
       setIsError(true)
     } finally {
       setSaving(false)
@@ -135,7 +144,6 @@ function Profile() {
   return (
     <AppLayout>
       <div className="mx-auto max-w-5xl">
-        {/* Page heading */}
         <header className="mb-7">
           <p className="text-sm font-bold text-emerald-700">
             Account
@@ -157,6 +165,7 @@ function Profile() {
                 ? 'border-red-200 bg-red-50 text-red-700'
                 : 'border-emerald-200 bg-emerald-50 text-emerald-800'
             }`}
+            role="status"
           >
             {message}
           </div>
@@ -166,7 +175,6 @@ function Profile() {
           onSubmit={handleSave}
           className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
         >
-          {/* Profile header */}
           <div className="border-b border-emerald-100 bg-linear-to-r from-emerald-50 to-teal-50 px-6 py-7 sm:px-8">
             <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-4">
@@ -223,7 +231,6 @@ function Profile() {
           </div>
 
           <div className="p-6 sm:p-8">
-            {/* Personal information */}
             <section>
               <h3 className="text-lg font-bold text-slate-900">
                 Personal Information
@@ -260,7 +267,11 @@ function Profile() {
                       label="Phone"
                       name="phone"
                       type="tel"
-                      placeholder="Enter your phone number"
+                      inputMode="numeric"
+                      maxLength={10}
+                      pattern="[6-9][0-9]{9}"
+                      placeholder="10-digit mobile number"
+                      hint="Enter 10 digits starting with 6, 7, 8, or 9. Leave blank if not applicable."
                       value={formData.phone}
                       onChange={handleChange}
                     />
@@ -291,7 +302,6 @@ function Profile() {
               </div>
             </section>
 
-            {/* Residence */}
             <section className="mt-9 border-t border-slate-100 pt-8">
               <h3 className="text-lg font-bold text-slate-900">
                 Residence Information
@@ -355,7 +365,6 @@ function Profile() {
               </div>
             </section>
 
-            {/* Activity */}
             <section className="mt-9 border-t border-slate-100 pt-8">
               <h3 className="text-lg font-bold text-slate-900">
                 Activity
@@ -445,6 +454,10 @@ function ProfileInput({
   placeholder,
   min,
   max,
+  maxLength,
+  inputMode,
+  pattern,
+  hint,
   required = false
 }) {
   return (
@@ -465,9 +478,18 @@ function ProfileInput({
         placeholder={placeholder}
         min={min}
         max={max}
+        maxLength={maxLength}
+        inputMode={inputMode}
+        pattern={pattern}
         required={required}
         className={inputClassName}
       />
+
+      {hint && (
+        <p className="mt-1.5 text-xs leading-5 text-slate-500">
+          {hint}
+        </p>
+      )}
     </div>
   )
 }

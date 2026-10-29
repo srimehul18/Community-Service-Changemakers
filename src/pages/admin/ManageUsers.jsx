@@ -1,15 +1,24 @@
 import { useEffect, useState } from 'react'
 import AppLayout from '../../components/AppLayout'
 import SelectMenu from '../../components/SelectMenu'
-import { apiDelete, apiGet, apiPatch, apiPost } from '../../api/api'
+import {
+  apiDelete,
+  apiGet,
+  apiPatch,
+  apiPost
+} from '../../api/api'
 import { Link } from 'react-router-dom'
+import { isStrongPassword } from '../../utils/validation'
+
+const passwordError =
+  'Password must be at least 8 characters and include an uppercase letter, a lowercase letter, a number, and a special character. Spaces are not allowed.'
 
 function ManageUsers() {
   const [users, setUsers] = useState([])
 
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('123456')
+  const [password, setPassword] = useState('')
   const [role, setRole] = useState('resident')
 
   const [loading, setLoading] = useState(true)
@@ -49,9 +58,12 @@ function ManageUsers() {
     event.preventDefault()
 
     if (!name.trim() || !email.trim() || !password) {
-      setError(
-        'Name, email and password are required.'
-      )
+      setError('Name, email and password are required.')
+      return
+    }
+
+    if (!isStrongPassword(password)) {
+      setError(passwordError)
       return
     }
 
@@ -59,21 +71,31 @@ function ManageUsers() {
       setSaving(true)
       setError('')
 
-      const newUser = await apiPost('/users', {
+      const response = await apiPost('/users', {
         name: name.trim(),
         email: email.trim(),
         password,
         role
       })
 
-      setUsers((current) => [
-        ...current,
-        newUser
-      ])
+      const createdUser = response.user
+
+      // The API returns "id"; the users table uses "_id".
+      if (createdUser) {
+        setUsers((current) => [
+          ...current,
+          {
+            ...createdUser,
+            _id: createdUser.id
+          }
+        ])
+      } else {
+        await loadUsers()
+      }
 
       setName('')
       setEmail('')
-      setPassword('123456')
+      setPassword('')
       setRole('resident')
     } catch (err) {
       setError(err.message || 'Failed to create user')
@@ -86,15 +108,26 @@ function ManageUsers() {
     try {
       setError('')
 
-      const updatedUser = await apiPatch(
+      const response = await apiPatch(
         `/users/${id}`,
         { role: newRole }
       )
 
+      const updatedUser = response.user
+
+      if (!updatedUser) {
+        await loadUsers()
+        return
+      }
+
       setUsers((current) =>
         current.map((user) =>
           user._id === id
-            ? updatedUser
+            ? {
+                ...user,
+                ...updatedUser,
+                _id: updatedUser.id || id
+              }
             : user
         )
       )
@@ -104,9 +137,7 @@ function ManageUsers() {
   }
 
   async function remove(id) {
-    const confirmed = window.confirm(
-      'Delete this user?'
-    )
+    const confirmed = window.confirm('Delete this user?')
 
     if (!confirmed) return
 
@@ -116,9 +147,7 @@ function ManageUsers() {
       await apiDelete(`/users/${id}`)
 
       setUsers((current) =>
-        current.filter(
-          (user) => user._id !== id
-        )
+        current.filter((user) => user._id !== id)
       )
     } catch (err) {
       setError(err.message || 'Failed to delete user')
@@ -137,7 +166,10 @@ function ManageUsers() {
         </p>
 
         {error && (
-          <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          <div
+            className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700"
+            role="alert"
+          >
             {error}
           </div>
         )}
@@ -148,33 +180,34 @@ function ManageUsers() {
         >
           <input
             value={name}
-            onChange={(event) =>
-              setName(event.target.value)
-            }
+            onChange={(event) => setName(event.target.value)}
             className="rounded-lg border border-slate-200 bg-slate-50 p-2 text-sm outline-none transition focus:border-emerald-400 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
             placeholder="Full name"
+            autoComplete="name"
+            required
             disabled={saving}
           />
 
           <input
             value={email}
-            onChange={(event) =>
-              setEmail(event.target.value)
-            }
+            onChange={(event) => setEmail(event.target.value)}
             className="rounded-lg border border-slate-200 bg-slate-50 p-2 text-sm outline-none transition focus:border-emerald-400 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
             placeholder="Email"
             type="email"
+            autoComplete="email"
+            required
             disabled={saving}
           />
 
           <input
             value={password}
-            onChange={(event) =>
-              setPassword(event.target.value)
-            }
+            onChange={(event) => setPassword(event.target.value)}
             className="rounded-lg border border-slate-200 bg-slate-50 p-2 text-sm outline-none transition focus:border-emerald-400 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
             placeholder="Password"
             type="password"
+            autoComplete="new-password"
+            minLength={8}
+            required
             disabled={saving}
           />
 
@@ -188,10 +221,16 @@ function ManageUsers() {
           <button
             type="submit"
             disabled={saving}
-            className="rounded-lg bg-emerald-700 p-2 text-sm font-bold text-white transition hover:bg-emerald-800 disabled:opacity-60"
+            className="rounded-lg bg-emerald-700 p-2 text-sm font-bold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {saving ? 'Adding...' : 'Add User'}
           </button>
+
+          <p className="text-xs leading-5 text-slate-500 sm:col-span-5">
+            Passwords must contain at least 8 characters, including uppercase
+            and lowercase letters, a number, and a special character. Spaces
+            are not allowed.
+          </p>
         </form>
 
         <div className="mt-5 overflow-x-auto rounded-xl border bg-white">
@@ -233,10 +272,7 @@ function ManageUsers() {
                       <SelectMenu
                         value={user.role}
                         onChange={(value) =>
-                          update(
-                            user._id,
-                            value
-                          )
+                          update(user._id, value)
                         }
                         options={userRoleOptions}
                         className="w-32"
@@ -246,9 +282,7 @@ function ManageUsers() {
                     <td className="p-3">
                       <button
                         type="button"
-                        onClick={() =>
-                          remove(user._id)
-                        }
+                        onClick={() => remove(user._id)}
                         className="text-sm font-bold text-red-700 transition hover:text-red-800 hover:underline"
                       >
                         Delete
@@ -256,6 +290,17 @@ function ManageUsers() {
                     </td>
                   </tr>
                 ))}
+
+                {!users.length && (
+                  <tr>
+                    <td
+                      colSpan={4}
+                      className="p-8 text-center text-slate-500"
+                    >
+                      No users found.
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           )}
